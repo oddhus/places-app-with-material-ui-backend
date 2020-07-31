@@ -31,7 +31,7 @@ const getPlaceById = (req, res, next) => {
   const place = DUMMY_PLACES.find(p => p.id === pid)
 
   if(!place){
-    return new HttpError("Could not find a place for provided id", 404)
+    throw new HttpError("Could not find a place for provided id", 404)
   }
 
   res.json({place})
@@ -39,7 +39,7 @@ const getPlaceById = (req, res, next) => {
 
 const getPlaceByUserId = (req, res, next) => {
   const uid = req.params.uid
-  const place = DUMMY_PLACES.find(p => p.creatorId === uid)
+  const place = DUMMY_PLACES.filter(p => p.creatorId === uid)
 
   if(!place){
     return next(
@@ -64,6 +64,40 @@ const createPlace = (req, res, next) => {
   res.status(201).json({place: createdPlace})
 }
 
+const updatePlaceById = (req, res, next) => {
+  const pid = req.params.pid
+  const { title, description } = req.body
+
+  const placeIndex = DUMMY_PLACES.findIndex(p => p.id === pid)
+
+  if(placeIndex < 0){
+    throw new HttpError("Could not find a place for the provided id", 404)
+  }
+
+  const updatedPlace = { 
+    ...DUMMY_PLACES[placeIndex],
+    title,
+    description
+  }
+
+  DUMMY_PLACES[placeIndex] = updatedPlace
+  res.status(200).json({place: updatedPlace})
+}
+
+const deletePlaceById = (req, res, next) => {
+  const pid = req.params.pid
+  const placeIndex = DUMMY_PLACES.findIndex(p => p.id === pid)
+
+  if(placeIndex < 0){
+    throw new HttpError("Could not find a place for the provided id", 404)
+  }
+
+  DUMMY_PLACES.splice(placeIndex, 1)
+  res.status(200).json({message: "Deleted place"})
+}
+
 exports.getPlaceById = getPlaceById
 exports.getPlaceByUserId = getPlaceByUserId
 exports.createPlace = createPlace
+exports.updatePlaceById = updatePlaceById
+exports.deletePlaceById = deletePlaceById
