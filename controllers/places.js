@@ -1,6 +1,8 @@
 const { v4: uuidv4} = require('uuid')
+const { validationResult } = require('express-validator');
 
-const HttpError = require('../models/http-error')
+const HttpError = require('../models/http-error');
+const getCoordsForAddress = require('../util/location');
 
 const DUMMY_PLACES = [{
   id: 'p1',
@@ -37,21 +39,34 @@ const getPlaceById = (req, res, next) => {
   res.json({place})
 }
 
-const getPlaceByUserId = (req, res, next) => {
+const getPlacesByUserId = (req, res, next) => {
   const uid = req.params.uid
-  const place = DUMMY_PLACES.filter(p => p.creatorId === uid)
+  const places = DUMMY_PLACES.filter(p => p.creatorId === uid)
 
-  if(!place){
+  if(!places || places.length === 0){
     return next(
-      new HttpError("Could not find a place for the provided user id", 404)
+      new HttpError("Could not find any places for the provided user id", 404)
     )
   }
 
-  res.json({place})
+  res.json({places})
 }
 
-const createPlace = (req, res, next) => {
-  const { title, description, coordinates, address, creator } = req.body
+const createPlace = async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const { title, description, address, creator } = req.body
+
+  let coordinates
+  try {
+    coordinates = await getCoordsForAddress(address)
+  } catch (error) {
+    return next(error)
+  }
+
   const createdPlace = {
     id: uuidv4(),
     title,
@@ -65,6 +80,11 @@ const createPlace = (req, res, next) => {
 }
 
 const updatePlaceById = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
   const pid = req.params.pid
   const { title, description } = req.body
 
@@ -97,7 +117,7 @@ const deletePlaceById = (req, res, next) => {
 }
 
 exports.getPlaceById = getPlaceById
-exports.getPlaceByUserId = getPlaceByUserId
+exports.getPlacesByUserId = getPlacesByUserId
 exports.createPlace = createPlace
 exports.updatePlaceById = updatePlaceById
 exports.deletePlaceById = deletePlaceById
