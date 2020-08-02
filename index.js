@@ -30,7 +30,8 @@ app.use((error, req, res, next) => {
 mongoose
   .connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@placesapp.wktbe.mongodb.net/places?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
-    useUnifiedTopology: true 
+    useUnifiedTopology: true,
+    useCreateIndex: true 
   })
   .then(() => {
     app.listen(port, () => console.log(`Example app listening on port ${port}!`))
