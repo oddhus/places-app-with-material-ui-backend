@@ -1,7 +1,5 @@
-const { default: Axios } = require("axios")
-
-const axios = require('axios')
 require('dotenv').config()
+const axios = require('axios')
 const HttpError = require("../models/http-error")
 
 async function getCoordsForAddress(address) {

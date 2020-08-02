@@ -1,5 +1,7 @@
+require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
+const mongoose = require('mongoose');
 
 const userRoutes = require('./routes/users')
 const placeRoutes = require('./routes/places')
@@ -25,6 +27,14 @@ app.use((error, req, res, next) => {
   res.json({message: error.message || "An unkown message occured"})
 })
 
-app.get('/', (req, res) => res.send('Hello World!'))
-
-app.listen(port, () => console.log(`Example app listening on port port!`))
+mongoose
+  .connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@placesapp.wktbe.mongodb.net/places?retryWrites=true&w=majority`,
+  { useNewUrlParser: true,
+    useUnifiedTopology: true 
+  })
+  .then(() => {
+    app.listen(port, () => console.log(`Example app listening on port ${port}!`))
+  })
+  .catch((err) => {
+    console.log(err)
+  })
