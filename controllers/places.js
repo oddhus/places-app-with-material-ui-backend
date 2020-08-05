@@ -37,13 +37,13 @@ const getPlacesByUserId = async (req, res, next) => {
     return next(new HttpError("Could not find any places for the provided user id", 404))
   }
 
-  res.json({places:  userWithPlaces.places.map(place => place.toObject({getter: true}))})
+  res.json({places:  userWithPlaces.places.map(place => place.toObject({getters: true}))})
 }
 
 const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return next(new HttpError("Invalid inputs passed, please check your data", 422))
   }
 
   const { title, description, address, creator } = req.body
@@ -60,7 +60,7 @@ const createPlace = async (req, res, next) => {
     description,
     address,
     location: coordinates,
-    image: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.ledgerinsights.com%2Fblockchain-proof-of-location%2F&psig=AOvVaw0SNZnVJn14uBMRk5negxIU&ust=1596441412795000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCKimq_CF_OoCFQAAAAAdAAAAABAJ",
+    image: "https://www.sasaki.com/wp-content/uploads/2014/07/cities-blog-image.jpg",
     creator
   })
 
@@ -93,7 +93,7 @@ const createPlace = async (req, res, next) => {
 const updatePlaceById = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return next(new HttpError("Invalid inputs passed, please check your data", 422)) //res.status(400).json({ message: errors.array() });
   }
 
   const pid = req.params.pid

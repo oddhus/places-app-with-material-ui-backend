@@ -2,6 +2,7 @@ require('dotenv').config()
 const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose');
+const cors = require('cors')
 
 const userRoutes = require('./routes/users')
 const placeRoutes = require('./routes/places')
@@ -11,6 +12,7 @@ const app = express()
 const port = 5000
 
 app.use(bodyParser.json())
+app.use(cors())
 
 app.use('/api/users', userRoutes)
 app.use('/api/places', placeRoutes)
@@ -23,8 +25,7 @@ app.use((error, req, res, next) => {
   if (res.headerSent){
     return next(error)
   }
-  res.status(error.code || 500)
-  res.json({message: error.message || "An unkown message occured"})
+  res.status(error.code || 500).json({message: error.message || "An unkown message occured"})
 })
 
 mongoose

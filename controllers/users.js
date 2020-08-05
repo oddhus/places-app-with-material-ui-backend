@@ -17,7 +17,7 @@ const getUsers = async (req, res, next) => {
 const createNewUser = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    throw new HttpError("Invalid inputs passed, please check your data", 422)
+    return next(new HttpError("Invalid inputs passed, please check your data", 422))
   }
 
   const { name, email, password } = req.body
@@ -53,7 +53,7 @@ const createNewUser = async (req, res, next) => {
 const loginUser = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+    return next(new HttpError("Invalid inputs passed, please check your data", 422)) 
   }
 
   const { email, password } = req.body
@@ -69,7 +69,7 @@ const loginUser = async (req, res, next) => {
     return next(new HttpError("Invalid password or email", 401))
   }
 
-  res.json({message: "Logged in"})
+  res.status(200).json({user: existingUser.toObject({getters:true})})
 }
 
 exports.getUsers = getUsers
