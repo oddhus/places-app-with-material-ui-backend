@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 
 const HttpError = require('../models/http-error');
 const getCoordsForAddress = require('../util/location');
+const cloudinary = require('../util/cloudinary');
 const Place = require('../models/place');
 const User = require('../models/user');
 
@@ -40,6 +41,8 @@ const getPlacesByUserId = async (req, res, next) => {
   res.json({places:  userWithPlaces.places.map(place => place.toObject({getters: true}))})
 }
 
+
+
 const createPlace = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -61,7 +64,8 @@ const createPlace = async (req, res, next) => {
     address,
     location: coordinates,
     image: "https://www.sasaki.com/wp-content/uploads/2014/07/cities-blog-image.jpg",
-    creator
+    creator,
+    imagePublicId: ""
   })
 
   let user
@@ -73,6 +77,16 @@ const createPlace = async (req, res, next) => {
 
   if(!user){
     return next(new HttpError('Could not find user for provided id', 404))
+  }
+
+  if (req.file) { /* Check if there is an image */
+    try {
+      const result = await cloudinary.uploadImage(req.file, "/places/")
+      createdPlace.image = result.url
+      createdPlace.imagePublicId = result.public_id
+    } catch (error) {
+      return next(new HttpError(error.message ? error.message : "Could not upload picture", 500))
+    }
   }
 
   try {
@@ -134,6 +148,15 @@ const deletePlaceById = async (req, res, next) => {
 
   if(!place){
     return next(new HttpError("Could not find a place to delete for the provided id", 404))
+  }
+
+  if (place.imagePublicId){
+    try {
+      const result = await cloudinary.deleteImage(place.imagePublicId, "/places/")
+      console.log(result)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   try {

@@ -2,6 +2,7 @@ const { validationResult } = require('express-validator');
 
 const HttpError = require('../models/http-error');
 const User = require('../models/user');
+const cloudinary = require('../util/cloudinary');
 
 const getUsers = async (req, res, next) => {
   let users
@@ -38,8 +39,21 @@ const createNewUser = async (req, res, next) => {
     email,
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/User_font_awesome.svg/1200px-User_font_awesome.svg.png",
     password,
-    places: []
+    places: [],
+    imagePublicId: ""
   })
+
+  console.log(req.file)
+
+  if (req.file) {
+    try {
+      const result = await cloudinary.uploadImage(req.file, "/users/")
+      createdUser.image = result.url
+      createdUser.imagePublicId = result.public_id
+    } catch (error) {
+      return next(new HttpError(error.message ? error.message : "Could not upload picture, signing up failed", 500))
+    }
+  }
 
   try {
     await createdUser.save()
