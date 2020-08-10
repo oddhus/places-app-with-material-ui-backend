@@ -6,7 +6,7 @@ const cors = require('cors')
 
 const userRoutes = require('./routes/users')
 const placeRoutes = require('./routes/places')
-const HttpError = require('./models/http-error')
+const HttpError = require('./models/http-error');
 
 const app = express()
 const port = 5000

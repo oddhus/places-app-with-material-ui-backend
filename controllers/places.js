@@ -12,7 +12,7 @@ const getPlaceById = async (req, res, next) => {
 
   let place
   try {
-    place = await Place.findById(pid)
+    place = await Place.findById(pid, '-imagePublicId')
   } catch (err) {
     return next(new HttpError("Something went wrong, could not find a place", 500))
   }
@@ -29,7 +29,7 @@ const getPlacesByUserId = async (req, res, next) => {
 
   let userWithPlaces
   try {
-    userWithPlaces = await User.findById(uid).populate('places')
+    userWithPlaces = await User.findById(uid).populate({path: 'places', select: '-imagePublicId'})
   } catch (error) {
     return next(new HttpError("Something went wrong, please try again later", 500))
   }
@@ -49,7 +49,8 @@ const createPlace = async (req, res, next) => {
     return next(new HttpError("Invalid inputs passed, please check your data", 422))
   }
 
-  const { title, description, address, creator } = req.body
+  const { title, description, address } = req.body
+  const creator = req.userData.userId
 
   let coordinates
   try {

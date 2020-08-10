@@ -9,7 +9,7 @@ const cloudinary = require('../util/cloudinary');
 const getUsers = async (req, res, next) => {
   let users
   try {
-    users = await User.find({}, '-password')
+    users = await User.find({}, '-password -imagePublicId')
   } catch (error) {
     return next(new HttpError('Fetching users failed, please try again later'), 500)
   }
