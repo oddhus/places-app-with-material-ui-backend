@@ -162,7 +162,6 @@ const deletePlaceById = async (req, res, next) => {
   if (place.imagePublicId){
     try {
       const result = await cloudinary.deleteImage(place.imagePublicId, "/places/")
-      console.log(result)
     } catch (error) {
       console.log(error)
     }
