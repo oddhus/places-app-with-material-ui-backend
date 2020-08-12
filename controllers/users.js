@@ -55,7 +55,7 @@ const createNewUser = async (req, res, next) => {
   if (req.file) {
     try {
       const result = await cloudinary.uploadImage(req.file, "/users/")
-      createdUser.image = result.url
+      createdUser.image = result.secure_url
       createdUser.imagePublicId = result.public_id
     } catch (error) {
       return next(new HttpError(error.message ? error.message : "Could not upload picture, signing up failed", 500))
