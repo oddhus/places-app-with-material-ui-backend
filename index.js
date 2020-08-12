@@ -12,8 +12,8 @@ const app = express()
 const port = 5000
 
 app.use(bodyParser.json())
-//app.use(cors())
-app.options('*',cors())
+app.use(cors())
+//app.options('*',cors())
 
 app.use('/api/users', userRoutes)
 app.use('/api/places', placeRoutes)
