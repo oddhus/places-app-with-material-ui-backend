@@ -83,7 +83,7 @@ const createPlace = async (req, res, next) => {
   if (req.file) { /* Check if there is an image */
     try {
       const result = await cloudinary.uploadImage(req.file, "/places/")
-      createdPlace.image = result.url
+      createdPlace.image = result.secure_url
       createdPlace.imagePublicId = result.public_id
     } catch (error) {
       return next(new HttpError(error.message ? error.message : "Could not upload picture", 500))
